@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Controle de Energia</title>
+  
+  <style>
+    body {
+      display: grid;
+      grid-template-columns: 1fr; 
+      gap: 20px;                
+      justify-items: center;      
+      align-items: center;        
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    .cabecalho {
+      text-align: center;
+    }
+
+    .container-lampada {
+      margin: 10px 0;
+    }
+
+    .botoes {
+      display: flex;
+      gap: 10px;                 
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cabecalho">
+    <h2>Controle Inteligente de Energia</h2>
+  </div>
+
+  <div class="container-lampada">
+    <img id="lampada" src="lampada-apagada.png" width="200" alt="Lâmpada">
+  </div>
+
+
+  <div class="botoes">
+    <button onclick="acender()">Acender</button>
+    <button onclick="apagar()">Apagar</button>
+  </div>
+
+  <script>
+    function acender() {
+      document.getElementById('lampada').src = 'lampada-acessa.png';
+    }
+
+    function apagar() {
+      document.getElementById('lampada').src = 'lampada-apagada.png';
+    }
+  </script>
+
+</body>
+</html>
