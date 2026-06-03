@@ -2,58 +2,356 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Controle de Energia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Industrial | Controle de Iluminação</title>
   
   <style>
+    /* --- Configuração Geral e Ambiente Escuro --- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      display: grid;
-      grid-template-columns: 1fr; 
-      gap: 20px;                
-      justify-items: center;      
-      align-items: center;        
-      font-family: sans-serif;
-      padding: 20px;
+      font-family: 'Segoe UI', 'Inter', Roboto, Arial, sans-serif; /* Tipografia limpa e sem serifa */
+      background-color: #121212; /* Fundo escuro para contrastar com a luminosidade */
+      color: #ffffff;
+      min-height: 100vh;
     }
 
-    .cabecalho {
-      text-align: center;
-    }
-
-    .container-lampada {
-      margin: 10px 0;
-    }
-
-    .botoes {
+    /* ==================== NAVBAR (MENU) ==================== */
+    .navbar {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      padding: 1rem 2rem;
       display: flex;
-      gap: 10px;                 
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-img {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, #ffeb3b, #ff9800);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #1a1a2e;
+      box-shadow: 0 0 15px rgba(255, 235, 59, 0.3);
+    }
+
+    .logo span {
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #ffeb3b, #ff9800);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-links li a {
+      color: #e0e0e0;
+      text-decoration: none;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .nav-links li a:hover {
+      background: rgba(255, 235, 59, 0.15);
+      color: #ffeb3b;
+      transform: translateY(-2px);
+    }
+
+    /* ==================== CONTEÚDO PRINCIPAL ==================== */
+    .main-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 80px);
+      padding: 40px 20px;
+    }
+
+    /* --- Container da Interface (Card Industrial) --- */
+    .painel-controle {
+      background: transparent;
+    }
+
+    .card-lampada {
+      background: #1e1e1e; /* Fundo ligeiramente mais claro que o fundo geral */
+      padding: 35px 30px;
+      border-radius: 20px; /* Cantos arredondados para um visual moderno */
+      border: 1px solid #333333; /* Borda sutil de isolamento de profundidade */
+      text-align: center;
+      width: 320px;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-lampada:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 40px rgba(0, 0, 0, 0.6);
+      border-color: #444;
+    }
+
+    /* --- Hierarquia de Texto de Títulos --- */
+    h3 {
+      font-size: 0.75em;
+      letter-spacing: 2.5px; /* Maior espaçamento para um aspecto técnico e limpo */
+      color: #888888;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* --- O LED Indicador Circular --- */
+    .led-status {
+      width: 14px;
+      height: 14px;
+      background-color: #555555; /* Cor neutra padrão (desligado) */
+      border-radius: 50%; /* Transforma o elemento quadrado em círculo perfeito */
+      margin: 0 auto 20px;
+      transition: background-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    /* LED aceso - será manipulado pelo JavaScript, mas deixamos estilo base */
+    .led-status.aceso {
+      background-color: #ffeb3b;
+      box-shadow: 0 0 12px #ffeb3b;
+    }
+
+    /* --- Imagem da Lâmpada --- */
+    .lampada-img {
+      width: 160px;
+      margin: 15px 0;
+      transition: filter 0.2s ease;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    }
+
+    /* --- Bloco de Ações do Usuário --- */
+    .controles {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    /* --- Estilização dos Botões de Comando --- */
+    button {
+      background: #2a2a2a;
+      color: #ffffff;
+      border: 1px solid #3a3a3a;
+      padding: 10px 22px;
+      border-radius: 8px; /* Cantos levemente arredondados nos botões */
+      font-weight: bold;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-transform: uppercase;
+    }
+
+    button:hover {
+      background: #3a3a3a;
+      transform: scale(1.02);
+      border-color: #ffeb3b55;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Botão Ligar com destaque */
+    .btn-ligar {
+      background: #2c2c1e;
+      border-color: #ffeb3b55;
+    }
+
+    .btn-ligar:hover {
+      background: #3a3a2a;
+      border-color: #ffeb3b;
+      box-shadow: 0 0 8px rgba(255, 235, 59, 0.3);
+    }
+
+    /* Botão Desligar */
+    .btn-desligar {
+      background: #2a2a2a;
+    }
+
+    .btn-desligar:hover {
+      background: #3a2a2a;
+      border-color: #ff5555aa;
+    }
+
+    /* --- Rodapé técnico (opcional) --- */
+    .info-footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.7rem;
+      color: #555;
+      letter-spacing: 1px;
+    }
+
+    /* Responsividade */
+    @media (max-width: 500px) {
+      .navbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 1rem;
+      }
+      .nav-links {
+        gap: 1rem;
+      }
+      .card-lampada {
+        width: 90%;
+        padding: 25px 20px;
+      }
+      .controles {
+        flex-direction: column;
+        gap: 10px;
+      }
+      button {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="cabecalho">
-    <h2>Controle Inteligente de Energia</h2>
-  </div>
+  <!-- ==================== MENU DE NAVEGAÇÃO (NAVBAR) ==================== -->
+  <nav class="navbar">
+    <div class="logo">
+      <!-- Substituído por um elemento circular estilizado (logótipo) -->
+      <div class="logo-img">⚡</div>
+      <span>EnergyCore</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Alunos</a></li>
+      <li><a href="#">Data</a></li>
+    </ul>
+  </nav>
 
-  <div class="container-lampada">
-    <img id="lampada" src="lampada-apagada.png" width="200" alt="Lâmpada">
-  </div>
-
-
-  <div class="botoes">
-    <button onclick="acender()">Acender</button>
-    <button onclick="apagar()">Apagar</button>
+  <!-- CONTEÚDO PRINCIPAL COM O PAINEL INDUSTRIAL DA LÂMPADA (DASHBOARD) -->
+  <div class="main-container">
+    <div class="painel-controle">
+      <div class="card-lampada">
+        
+        <!-- Título Técnico Hierárquico -->
+        <h3>SISTEMA DE ILUMINAÇÃO</h3>
+        
+        <!-- Indicador visual de status (LED Circular) -->
+        <div id="led" class="led-status"></div>
+        
+        <!-- Imagem central da lâmpada -->
+        <img id="myImage" class="lampada-img" src="lampada-apagada.png" alt="Estado da Lâmpada">
+        
+        <!-- Bloco de ações do usuário -->
+        <div class="controles">
+          <button class="btn-ligar" onclick="ligar()">LIGAR</button>
+          <button class="btn-desligar" onclick="desligar()">DESLIGAR</button>
+        </div>
+        
+        <!-- Pequeno indicador de status técnico (hierarquia secundária) -->
+        <div style="margin-top: 18px; font-size: 0.7rem; color: #666; letter-spacing: 1px;">
+          <span id="statusText">● OFF</span>
+        </div>
+      </div>
+      <div class="info-footer">
+        Industrial Dashboard v2.0 | UI/UX com LED dinâmico
+      </div>
+    </div>
   </div>
 
   <script>
-    function acender() {
-      document.getElementById('lampada').src = 'lampada-acessa.png';
+    // === JAVASCRIPT COM GERENCIAMENTO COMPLETO DE ESTADOS ===
+    // Transições de imagem + LED com brilho (boxShadow) + feedback textual
+    
+    function ligar() {
+      // 1. Altera o caminho da imagem para exibir a lâmpada acesa
+      const lampImg = document.getElementById('myImage');
+      lampImg.src = 'lampada-acessa.png';   // Substitua pelo nome real da sua imagem acesa
+      // (Caso não exista, o navegador exibirá quebra; usaremos um fallback visual caso necessário)
+      
+      // 2. Captura o elemento LED para manipulação de estilo dinâmica
+      const led = document.getElementById('led');
+      // Aplica tom amarelo brilhante + efeito luminoso de brilho (boxShadow difuso)
+      led.style.backgroundColor = '#ffeb3b';
+      led.style.boxShadow = '0 0 14px #ffeb3b, 0 0 5px #ffaa00';
+      led.style.transition = 'background-color 0.2s, box-shadow 0.2s';
+      
+      // 3. (Opcional) atualizar texto de status para mais feedback
+      document.getElementById('statusText').innerHTML = '● LIGADO';
+      document.getElementById('statusText').style.color = '#ffeb3b';
+      
+      // Bônus: se a imagem não carregar devido a nomes diferentes, manteremos uma lógica de fallback
+      // Mas em ambiente real, garantimos que os nomes combinem com os arquivos fornecidos.
+      // Caso queira um efeito extra: podemos adicionar classe ao card para brilho ambiente
+      const card = document.querySelector('.card-lampada');
+      card.style.transition = 'box-shadow 0.3s';
+      card.style.boxShadow = '0 0 12px rgba(255, 235, 59, 0.2)';
     }
-
-    function apagar() {
-      document.getElementById('lampada').src = 'lampada-apagada.png';
+    
+    function desligar() {
+      // 1. Altera o caminho da imagem para exibir a lâmpada apagada
+      const lampImg = document.getElementById('myImage');
+      lampImg.src = 'lampada-apagada.png';
+      
+      // 2. Restaura o LED indicador para o seu estado padrão de repouso
+      const led = document.getElementById('led');
+      led.style.backgroundColor = '#555555';
+      led.style.boxShadow = 'none';   // Remove por completo a luminescência
+      
+      // 3. Atualizar texto de status
+      document.getElementById('statusText').innerHTML = '● OFF';
+      document.getElementById('statusText').style.color = '#888';
+      
+      // Remove o brilho extra do card
+      const card = document.querySelector('.card-lampada');
+      card.style.boxShadow = '0 20px 35px rgba(0, 0, 0, 0.5)';
     }
+    
+    // Garantia de que o LED e a imagem reflitam estado inicial correto (OFF)
+    window.addEventListener('DOMContentLoaded', function() {
+      // Sincroniza o LED com estado desligado (caso algum refresh)
+      const led = document.getElementById('led');
+      led.style.backgroundColor = '#555555';
+      led.style.boxShadow = 'none';
+      // Verifica também o atributo da imagem (fallback caso alguma imagem não exista)
+      const lampImg = document.getElementById('myImage');
+      if (!lampImg.complete || lampImg.naturalWidth === 0) {
+        // Se por acaso a imagem estiver quebrada, tentamos corrigir com caminho padrão
+        // Mas manteremos a lógica baseada nos nomes enviados: 'lampada-apagada.png' e 'lampada-acessa.png'
+        console.log("Verifique se os arquivos lampada-apagada.png e lampada-acessa.png estão no mesmo diretório.");
+      }
+      // Define texto de status inicial
+      document.getElementById('statusText').innerHTML = '● OFF';
+      document.getElementById('statusText').style.color = '#888';
+    });
   </script>
-
 </body>
 </html>
